@@ -296,8 +296,8 @@
             welcomeText: '',
             responseTimeText: '',
             poweredBy: {
-                text: ',
-                link: ''
+                text: '',
+                link: '',
             }
         },
         style: {
