@@ -273,7 +273,7 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
             opacity: 1;
         }
         .typing-indicator {
-          padding: 12px 16px;
+          padding: 12px 16px !important;
           margin: 8px 0;
           border-radius: 12px;
           max-width: 80%;
