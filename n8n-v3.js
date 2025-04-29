@@ -153,7 +153,7 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
         }
 
         .n8n-chat-widget .chat-message {
-            padding: 0px 16px;
+            padding: 12px 16px;
             margin: 8px 0;
             border-radius: 12px;
             max-width: 80%;
