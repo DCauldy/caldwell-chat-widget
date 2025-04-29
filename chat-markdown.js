@@ -272,6 +272,23 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
         .n8n-chat-widget .chat-footer a:hover {
             opacity: 1;
         }
+        .typing-indicator {
+          padding: 12px 16px;
+          margin: 8px 0;
+          border-radius: 12px;
+          max-width: 80%;
+          font-size: 14px;
+          color: #666;
+          font-style: italic;
+          align-self: flex-start;
+          animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+          0% { opacity: 0.3; }
+          50% { opacity: 1; }
+          100% { opacity: 0.3; }
+        }
     `;
 
     // Load Geist font
