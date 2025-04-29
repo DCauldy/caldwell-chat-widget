@@ -281,13 +281,31 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
           color: #666;
           font-style: italic;
           align-self: flex-start;
-          animation: pulse 1.5s infinite;
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
 
-        @keyframes pulse {
-          0% { opacity: 0.3; }
-          50% { opacity: 1; }
-          100% { opacity: 0.3; }
+        .typing-dot {
+          width: 6px;
+          height: 6px;
+          background-color: #666;
+          border-radius: 50%;
+          animation: blink 1.5s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+        
+        @keyframes blink {
+          0% { opacity: 0.2; }
+          20% { opacity: 1; }
+          100% { opacity: 0.2; }
         }
     `;
 
@@ -449,7 +467,20 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
     // ➡️ ADD Typing Indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'chat-message bot typing-indicator';
-    typingDiv.textContent = 'Bot is typing...';
+    
+    const dot1 = document.createElement('div');
+    dot1.className = 'typing-dot';
+    
+    const dot2 = document.createElement('div');
+    dot2.className = 'typing-dot';
+    
+    const dot3 = document.createElement('div');
+    dot3.className = 'typing-dot';
+    
+    typingDiv.appendChild(dot1);
+    typingDiv.appendChild(dot2);
+    typingDiv.appendChild(dot3);
+    
     messagesContainer.appendChild(typingDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
