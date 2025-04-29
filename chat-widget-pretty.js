@@ -261,7 +261,7 @@
 
         .n8n-chat-widget .chat-footer a {
             color: var(--chat--color-primary);
-            text-decoration: none;
+            text-decoration: underline !important;
             font-size: 12px;
             opacity: 0.8;
             transition: opacity 0.2s;
