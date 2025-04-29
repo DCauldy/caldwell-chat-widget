@@ -446,6 +446,13 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
     messagesContainer.appendChild(userMessageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+    // ➡️ ADD Typing Indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-message bot typing-indicator';
+    typingDiv.textContent = 'Bot is typing...';
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
     try {
         const response = await fetch(config.webhook.url, {
             method: 'POST',
@@ -455,6 +462,9 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
 
         const data = await response.json();
 
+        // ➡️ REMOVE Typing Indicator
+        typingDiv.remove();
+
         const botMessageDiv = document.createElement('div');
         botMessageDiv.className = 'chat-message bot';
         const responseText = Array.isArray(data) ? data[0].output : data.output;
@@ -463,6 +473,7 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     } catch (error) {
         console.error('Error:', error);
+        typingDiv.remove(); // Remove typing even if error happens
     }
 }
 
