@@ -362,17 +362,41 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
             });
         });
         localStorage.setItem('n8nChatHistory', JSON.stringify(messages));
+        localStorage.setItem('n8nChatLastActive', Date.now()); // ➡️ Save timestamp
     }
 
     function loadChatHistory() {
+        const lastActive = parseInt(localStorage.getItem('n8nChatLastActive') || '0', 10);
+        const now = Date.now();
+        const hoursSinceLastActive = (now - lastActive) / (1000 * 60 * 60); // ms ➡️ hr
+    
+        if (hoursSinceLastActive > 72) {
+            // Too old ➡️ Clear everything
+            localStorage.removeItem('n8nChatHistory');
+            localStorage.removeItem('n8nChatLastActive');
+            return;
+        }
+    
         const history = JSON.parse(localStorage.getItem('n8nChatHistory') || '[]');
-        history.forEach(msg => {
-            const div = document.createElement('div');
-            div.className = `chat-message ${msg.type}`;
-            div.innerHTML = msg.html;
-            messagesContainer.appendChild(div);
-        });
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (history.length > 0) {
+            // Load old messages
+            history.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `chat-message ${msg.type}`;
+                div.innerHTML = msg.html;
+                messagesContainer.appendChild(div);
+            });
+    
+            // ➡️ Add "Welcome back!" at top if < 24h
+            if (hoursSinceLastActive <= 24) {
+                const welcomeBackDiv = document.createElement('div');
+                welcomeBackDiv.className = 'chat-message bot';
+                welcomeBackDiv.innerHTML = `<em>👋 Welcome back! Picking up where we left off...</em>`;
+                messagesContainer.insertBefore(welcomeBackDiv, messagesContainer.firstChild);
+            }
+    
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     }
 
     // Continue your widget setup...
