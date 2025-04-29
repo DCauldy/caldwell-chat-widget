@@ -1,7 +1,5 @@
 import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
 // Chat Widget Script
-import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
-// Chat Widget Script
 (function() {
     // Create and inject styles
     const styles = `
