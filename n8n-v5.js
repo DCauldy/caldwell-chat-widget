@@ -309,8 +309,7 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
         }
     `;
 
-    // Load Geist font
-    const fontLink = document.createElement('link');
+  const fontLink = document.createElement('link');
   fontLink.rel = 'stylesheet';
   fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
   document.head.appendChild(fontLink);
@@ -319,8 +318,8 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 
-  const defaultConfig = { ... };
-  const config = window.ChatWidgetConfig ? { ... } : defaultConfig;
+  const defaultConfig = { webhook: { url: '', route: '' }, branding: { logo: '', name: '', welcomeText: '', responseTimeText: '', poweredBy: { text: '', link: '' } }, style: { primaryColor: '', secondaryColor: '', position: 'right', backgroundColor: '#ffffff', fontColor: '#333333' } };
+  const config = window.ChatWidgetConfig ? { webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook }, branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding }, style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style } } : defaultConfig;
 
   if (window.N8NChatWidgetInitialized) return;
   window.N8NChatWidgetInitialized = true;
@@ -341,10 +340,7 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
   function saveChatHistory() {
     const messages = [];
     document.querySelectorAll('.chat-message').forEach(msg => {
-      messages.push({
-        type: msg.classList.contains('user') ? 'user' : 'bot',
-        html: msg.innerHTML
-      });
+      messages.push({ type: msg.classList.contains('user') ? 'user' : 'bot', html: msg.innerHTML });
     });
     localStorage.setItem('n8nChatHistory', JSON.stringify(messages));
     localStorage.setItem('n8nChatLastActive', Date.now());
@@ -376,19 +372,12 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
         welcomeBackDiv.innerHTML = `<em>👋 Welcome back! Picking up where we left off...</em>`;
         messagesContainer.insertBefore(welcomeBackDiv, messagesContainer.firstChild);
       }
-
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   }
 
   function handleButtonClick(action) {
-    const messageData = {
-      action: "customAction",
-      sessionId: currentSessionId,
-      route: config.webhook.route,
-      customAction: action,
-      metadata: { userId: "" }
-    };
+    const messageData = { action: "customAction", sessionId: currentSessionId, route: config.webhook.route, customAction: action, metadata: { userId: "" } };
 
     const userMessageDiv = document.createElement('div');
     userMessageDiv.className = 'chat-message user';
@@ -403,51 +392,69 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
     messagesContainer.appendChild(typingDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    fetch(config.webhook.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messageData)
-    })
-    .then(response => response.json())
-    .then(data => {
-      typingDiv.remove();
-      const botMessageDiv = document.createElement('div');
-      botMessageDiv.className = 'chat-message bot';
-      const responseText = Array.isArray(data) ? data[0].output : data.output;
-
-      if (responseText.includes("[button:")) {
-        const buttonLabel = responseText.match(/\[button:(.*?)\]/)[1];
-        const button = document.createElement('button');
-        button.textContent = buttonLabel;
-        button.className = 'new-chat-btn';
-        button.addEventListener('click', () => handleButtonClick(buttonLabel.toLowerCase().replace(/\s/g, '')));
-        botMessageDiv.appendChild(button);
-      } else {
-        botMessageDiv.innerHTML = marked.parse(responseText);
-      }
-
-      messagesContainer.appendChild(botMessageDiv);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      saveChatHistory();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      typingDiv.remove();
-    });
+    fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) })
+      .then(response => response.json())
+      .then(data => {
+        typingDiv.remove();
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'chat-message bot';
+        const responseText = Array.isArray(data) ? data[0].output : data.output;
+        if (responseText.includes("[button:")) {
+          const buttonLabel = responseText.match(/\[button:(.*?)\]/)[1];
+          const button = document.createElement('button');
+          button.textContent = buttonLabel;
+          button.className = 'new-chat-btn';
+          button.addEventListener('click', () => handleButtonClick(buttonLabel.toLowerCase().replace(/\s/g, '')));
+          botMessageDiv.appendChild(button);
+        } else {
+          botMessageDiv.innerHTML = marked.parse(responseText);
+        }
+        messagesContainer.appendChild(botMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        saveChatHistory();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        typingDiv.remove();
+      });
   }
 
-  // --- Widget Setup (OUTSIDE handleButtonClick) ---
   const widgetContainer = document.createElement('div');
   widgetContainer.className = 'n8n-chat-widget';
-  ... // (rest of your widget build)
+  widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
+  widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
+  widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
+  widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
+
+  const chatContainer = document.createElement('div');
+  chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
+
+  const newConversationHTML = `...`; // your full button + welcome message
+  const chatInterfaceHTML = `...`;    // your full chat interface
+
+  chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
+
+  const toggleButton = document.createElement('button');
+  toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
+  toggleButton.innerHTML = `...`;
+
+  widgetContainer.appendChild(chatContainer);
+  widgetContainer.appendChild(toggleButton);
+  document.body.appendChild(widgetContainer);
+
+  const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+  const chatInterface = chatContainer.querySelector('.chat-interface');
+  const messagesContainer = chatContainer.querySelector('.chat-messages');
+  const textarea = chatContainer.querySelector('textarea');
+  const sendButton = chatContainer.querySelector('button[type="submit"]');
 
   loadChatHistory();
 
-  // --- Event Listeners ---
+  async function startNewConversation() { ... }
+  async function sendMessage(message) { ... }
+
   newChatBtn.addEventListener('click', startNewConversation);
   sendButton.addEventListener('click', () => { ... });
   textarea.addEventListener('keypress', (e) => { ... });
   toggleButton.addEventListener('click', () => { ... });
-  closeButtons.forEach(button => { button.addEventListener('click', () => { ... }); });
-
 })();
